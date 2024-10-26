@@ -3,6 +3,7 @@ USER node
 WORKDIR /home/app
 RUN mkdir -p /home/app/server
 RUN mkdir -p /home/app/client
+RUN mkdir -p /home/app/client/dist
 COPY --chown=node:node ./server ./server
 COPY --chown=node:node ./client ./client
 WORKDIR /home/app/client
