@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: container-pg
+    image: postgres
+    restart: unless-stopped
+    hostname: localhost
+    ports:
+      - '5432:5432'
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: test_db
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  backend:
+    container_name: container-server
+    image: test/kingsoftranslation
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - 'db'
+    links:
+      - 'db'
+    environment:
+      PORT: 3000
+      DB_CONNECTION_STRING: 'http://db:5432'
+      DB_PORT: 5432
+      DB_HOST: 'db'
+      DB_USER: 'admin'
+      DB_NAME: 'test_db'
+      DB_PASSWORD: 'root'
